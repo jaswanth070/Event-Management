@@ -1,0 +1,22 @@
+{% extends "base_registration.html" %}
+{% block title %}Participant Registration{% endblock title %}
+{% block header %}Register as Participant{% endblock header %}
+{% block form_action %}/register/participant/{% endblock form_action %}
+{% block form_fields %}
+    <div class="form-group">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="Enter Username" required>
+    </div>
+    <div class="form-group">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" id="email" name="email" class="form-control" placeholder="Enter Email" required>
+    </div>
+    <div class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Enter Password" required>
+    </div>
+    <div class="form-group">
+        <label for="event_interest" class="form-label">Event Interest</label>
+        <input type="text" id="event_interest" name="event_interest" class="form-control" placeholder="Enter Event Interest">
+    </div>
+{% endblock form_fields %}

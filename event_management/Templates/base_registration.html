@@ -1,0 +1,168 @@
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Registration{% endblock title %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    
+    {% block xstyle %}
+    <style>
+        /* Background and Font Styles */
+        body {
+            background: linear-gradient(135deg, #4caf50, #009688);
+            font-family: 'Poppins', sans-serif; /* New stylish font */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+        }
+
+        /* Container Design */
+        .ss-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            width: 420px;
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        /* Logo Design */
+        .logo img {
+            width: 120px;
+            margin-bottom: 30px;
+            animation: bounce 1.5s ease-in-out infinite;
+        }
+
+        /* Heading Styles */
+        h2 {
+            color: #00796b;
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: slideIn 1s ease-in-out;
+        }
+
+        /* Form Group */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #00796b;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #004d40;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            background-color: #00796b;
+            color: white;
+            padding: 12px;
+            border-radius: 25px;
+            border: none;
+            width: 100%;
+            transition: background-color 0.3s, transform 0.3s;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #004d40;
+            transform: scale(1.05);
+        }
+
+        .submit-btn:focus {
+            outline: none;
+        }
+
+        /* Helper Link */
+        .helper-link {
+            margin-top: 20px;
+            display: block;
+            color: #00796b;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .helper-link:hover {
+            text-decoration: underline;
+            color: #004d40;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+    </style>
+    {% endblock xstyle %}
+</head>
+<body>
+    {% if messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {% for message in messages %}
+            <strong>{{ message }}</strong>
+        {% endfor %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endif %}
+    <div class="ss-container">
+        <div class="logo">
+            <img src="https://cdn.gitam.edu/images/logo/gitam-new-logo.png" alt="Logo">
+        </div>
+        <h2>{% block header %}Register{% endblock header %}</h2>
+        <form method="POST" action="{% block form_action %}#form_action{% endblock form_action %}">
+            {% csrf_token %}
+            {% block form_fields %}
+            <!-- Default form fields for extensions -->
+            {% endblock form_fields %}
+            <button type="submit" class="submit-btn">Register</button>
+        </form>
+        <a href="/login" class="helper-link">Already have an account? Login here</a>
+    </div>
+</body>
+</html>
+{% endblock content %}
