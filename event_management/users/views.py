@@ -1,140 +1,82 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
 from django.contrib import messages
-from django.contrib.auth import get_user_model
-from .models import Organizer, Participant, Volunteer, Event
+from .models import Organizer, Participant, Volunteer, UserProfile
 
 
-# Role Selection View
-def role_selection(request):
-    if request.method == 'POST':
+def register(request):
+    if request.method == "POST":
         role = request.POST.get('role')
-        if role == 'organizer':
-            return redirect('organizer_register')
-        elif role == 'participant':
-            return redirect('participant_register')
-        elif role == 'volunteer':
-            return redirect('volunteer_register')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+        phone = request.POST.get('phone')
+        institute = request.POST.get('institute', None)
+
+        if password != confirm_password:
+            return JsonResponse({"errors": ["Passwords do not match."]}, status=400)
+
+        if UserProfile.objects.filter(username=username).exists():
+            return JsonResponse({"errors": ["Username already exists."]}, status=400)
+
+        if UserProfile.objects.filter(email=email).exists():
+            return JsonResponse({"errors": ["Email is already registered."]}, status=400)
+
+        # Create user profile
+        user_profile = UserProfile.objects.create_user(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            password=password,
+        )
+        user_profile.email = email
+        user_profile.phone_number = phone
+        user_profile.role = role
+        if institute:
+            user_profile.institute = institute
+        user_profile.save()
+
+        if role == "organizer":
+            Organizer.objects.create(user=user_profile)
+        elif role == "participant":
+            Participant.objects.create(user=user_profile)
+        elif role == "volunteer":
+            Volunteer.objects.create(user=user_profile)
+
+        return JsonResponse({
+            "message": "Registration successful!",
+            "redirect_url": "/login"
+        })
+
+    return render(request, 'register.html')
+
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        role = request.POST.get('role')
+
+        user = authenticate(request, username=username, password=password)
+        if user:
+            # Check role match
+            if user.role == role:
+                login(request, user)
+                return JsonResponse({
+                    "message": "Login successful!",
+                    "redirect_url": "/"  # Change to your dashboard or homepage
+                })
+            else:
+                return JsonResponse({
+                    "errors": ["Role mismatch. Please check your role selection."]
+                }, status=400)
         else:
-            messages.error(request, 'Invalid role selected.')
-            return redirect('role_selection')
-    return render(request, 'Registration/role_selection.html')
+            return JsonResponse({
+                "errors": ["Invalid username or password."]
+            }, status=400)
 
-
-# Organizer Registration View
-def organizer_register(request):
-    if request.method == "POST":
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password1 = request.POST.get('password1')
-        password2 = request.POST.get('password2')
-        phone_number = request.POST.get('phone_number')
-        institute = request.POST.get('institute')
-
-        # Validate data
-        if password1 != password2:
-            messages.error(request, 'Passwords do not match.')
-            return redirect('organizer_register')
-
-        if get_user_model().objects.filter(username=username).exists():
-            messages.error(request, 'Username already exists.')
-            return redirect('organizer_register')
-
-        if get_user_model().objects.filter(email=email).exists():
-            messages.error(request, 'Email already exists.')
-            return redirect('organizer_register')
-
-        # Create the UserProfile
-        user_profile = get_user_model().objects.create_user(username=username, email=email, password=password1)
-        user_profile.phone_number = phone_number
-        user_profile.institute = institute
-        user_profile.role = 'organizer'
-        user_profile.save()
-
-        # Create the Organizer profile using the UserProfile instance
-        organizer = Organizer(user=user_profile)  # Correct assignment of UserProfile instance
-        organizer.save()
-
-        messages.success(request, 'Organizer account created successfully!')
-        return redirect('login')
-
-    return render(request, 'Registration/organizer.html')
-
-
-# Participant Registration View
-def participant_register(request):
-    if request.method == "POST":
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password1 = request.POST.get('password1')
-        password2 = request.POST.get('password2')
-        phone_number = request.POST.get('phone_number')
-        institute = request.POST.get('institute')
-
-        # Validate data
-        if password1 != password2:
-            messages.error(request, 'Passwords do not match.')
-            return redirect('participant_register')
-
-        if get_user_model().objects.filter(username=username).exists():
-            messages.error(request, 'Username already exists.')
-            return redirect('participant_register')
-
-        if get_user_model().objects.filter(email=email).exists():
-            messages.error(request, 'Email already exists.')
-            return redirect('participant_register')
-
-        # Create the UserProfile
-        user_profile = get_user_model().objects.create_user(username=username, email=email, password=password1)
-        user_profile.phone_number = phone_number
-        user_profile.institute = institute
-        user_profile.role = 'participant'
-        user_profile.save()
-
-        # Create the Participant profile using the UserProfile instance
-        participant = Participant(user=user_profile)  # Correct assignment of UserProfile instance
-        participant.save()
-
-        messages.success(request, 'Participant account created successfully!')
-        return redirect('login')
-
-    return render(request, 'Registration/participant.html')
-
-
-# Volunteer Registration View
-def volunteer_register(request):
-    if request.method == "POST":
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password1 = request.POST.get('password1')
-        password2 = request.POST.get('password2')
-        phone_number = request.POST.get('phone_number')
-        institute = request.POST.get('institute')
-
-        # Validate data
-        if password1 != password2:
-            messages.error(request, 'Passwords do not match.')
-            return redirect('volunteer_register')
-
-        if get_user_model().objects.filter(username=username).exists():
-            messages.error(request, 'Username already exists.')
-            return redirect('volunteer_register')
-
-        if get_user_model().objects.filter(email=email).exists():
-            messages.error(request, 'Email already exists.')
-            return redirect('volunteer_register')
-
-        # Create the UserProfile
-        user_profile = get_user_model().objects.create_user(username=username, email=email, password=password1)
-        user_profile.phone_number = phone_number
-        user_profile.institute = institute
-        user_profile.role = 'volunteer'
-        user_profile.save()
-
-        # Create the Volunteer profile using the UserProfile instance
-        volunteer = Volunteer(user=user_profile)  # Correct assignment of UserProfile instance
-        volunteer.save()
-
-        messages.success(request, 'Volunteer account created successfully!')
-        return redirect('login')
-
-    return render(request, 'Registration/volunteer.html')
+    return render(request, "login.html")
