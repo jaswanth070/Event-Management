@@ -61,22 +61,29 @@ def login_view(request):
         password = request.POST.get('password')
         role = request.POST.get('role')
 
-        user = authenticate(request, username=username, password=password)
-        if user:
-            # Check role match
-            if user.role == role:
-                login(request, user)
-                return JsonResponse({
-                    "message": "Login successful!",
-                    "redirect_url": "/"  # Change to your dashboard or homepage
-                })
+        try:
+            # Fetch the user from the UserProfile model
+            user = UserProfile.objects.get(username=username)
+
+            # Check if the password is valid and the role matches
+            if user.check_password(password):
+                if user.role == role:
+                    login(request, user)  # Log the user in
+                    return JsonResponse({
+                        "message": "Login successful!",
+                        "redirect_url": "/"  # Change to your dashboard/homepage
+                    })
+                else:
+                    return JsonResponse({
+                        "errors": ["Role mismatch. Please check your role selection."]
+                    }, status=400)
             else:
                 return JsonResponse({
-                    "errors": ["Role mismatch. Please check your role selection."]
+                    "errors": ["Invalid password."]
                 }, status=400)
-        else:
+        except UserProfile.DoesNotExist:
             return JsonResponse({
-                "errors": ["Invalid username or password."]
+                "errors": ["Invalid username."]
             }, status=400)
 
     return render(request, "login.html")
