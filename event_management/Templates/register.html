@@ -164,7 +164,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="phone" class="form-label">Phone Number</label>
-                    <input type="text" id="phone" name="phone" class="form-control" placeholder="Phone Number" required>
+                    <input type="tel" id="phone" name="phone" class="form-control" placeholder="Phone Number" required>
                 </div>
                 <div id="institute-field" class="mb-3">
                     <label for="institute" class="form-label">Institute</label>
@@ -214,7 +214,7 @@
                         $("#loading").hide();
                         setTimeout(() => {
                             window.location.href = response.redirect_url;
-                        }, 2000);
+                        }, 1000);
                     },
                     error: function (xhr) {
                         const errors = xhr.responseJSON.errors || ["An error occurred."];

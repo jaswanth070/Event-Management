@@ -71,7 +71,7 @@ def login_view(request):
                     login(request, user)  # Log the user in
                     return JsonResponse({
                         "message": "Login successful!",
-                        "redirect_url": "/"  # Change to your dashboard/homepage
+                        "redirect_url": f"{role}"  
                     })
                 else:
                     return JsonResponse({
