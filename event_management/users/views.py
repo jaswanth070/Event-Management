@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login,logout
 from django.http import JsonResponse
 from django.contrib import messages
 from .models import Organizer, Participant, Volunteer, UserProfile
@@ -89,3 +89,7 @@ def login_view(request):
             }, status=400)
 
     return render(request, "login.html")
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Event</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #007467;
+            /* Dark background theme */
+            color: #333;
+            /* Light text color for readability */
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #f4e4c9;
+            /* Dark container background */
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            /* Subtle shadow */
+            padding: 30px;
+            border: 1px solid #263238;
+            /* Accent border for better visibility */
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header img {
+            max-width: 100px;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin: 0;
+            color: #007467;
+            /* Primary accent color */
+        }
+
+        header p {
+            font-size: 1rem;
+            color: #90A4AE;
+            /* Secondary text color */
+        }
+
+        /* Form Styles */
+        .event-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+            /* Muted text color */
+        }
+
+        input,
+        textarea,
+        select {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid;
+            /* Dark border for form fields */
+            border-radius: 5px;
+            background: #fff;
+            /* Dark input background */
+            color: #ECEFF1;
+            /* Light text color for inputs */
+            outline: none;
+            transition: border-color 0.3s ease, background 0.3s ease;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #007467;
+            /* Highlight border on focus */
+            /* background: #37474F; */
+            /* Slightly lighter background on focus */
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        /* Form Row for Side-by-Side Inputs */
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            padding: 12px 20px;
+            font-size: 1rem;
+            color: #ffffff;
+            /* Button text color */
+            background: #007467;
+            /* Primary accent color */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: #039BE5;
+            /* Darker shade for hover effect */
+            transform: scale(1.05);
+            /* Subtle scaling effect */
+        }
+
+        /* Logo */
+        header img {
+            border-radius: 50%;
+            /* Circular logo */
+            border: 2px solid #29B6F6;
+            /* Accent border around logo */
+            padding: 5px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .form-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Create New Event</h1>
+            <p>Fill in the details below to create and publish your event.</p>
+        </header>
+
+        <form class="event-form">
+            <!-- Event Name -->
+            <div class="form-group">
+                <label for="event-name">Event Name</label>
+                <input type="text" id="event-name" name="event_name" placeholder="Enter the event name" required>
+            </div>
+
+            <!-- Event Description -->
+            <div class="form-group">
+                <label for="event-description">Description</label>
+                <textarea id="event-description" name="event_description" rows="5"
+                    placeholder="Provide a brief description of the event" required></textarea>
+            </div>
+
+            <!-- Event Date -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="event-date">Date</label>
+                    <input type="date" id="event-date" name="event_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="event-time">Time</label>
+                    <input type="time" id="event-time" name="event_time" required>
+                </div>
+            </div>
+
+            <!-- Event Location -->
+            <div class="form-group">
+                <label for="event-location">Location</label>
+                <input type="text" id="event-location" name="event_location" placeholder="Enter the event location"
+                    required>
+            </div>
+
+            <!-- Event Category -->
+            <div class="form-group">
+                <label for="event-category">Category</label>
+                <select id="event-category" name="event_category" required>
+                    <option value="" disabled selected>Select a category</option>
+                    <option value="workshop">Workshop</option>
+                    <option value="competition">Competition</option>
+                    <option value="tech-talk">Tech Talk</option>
+                    <option value="networking">Networking</option>
+                </select>
+            </div>
+
+            <!-- Registration Fee -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="event-fee">Registration Fee (₹)</label>
+                    <input type="number" id="event-fee" name="event_fee" placeholder="Enter fee amount (0 for free)">
+                </div>
+
+                <div class="form-group">
+                    <label for="event-capacity">Capacity</label>
+                    <input type="number" id="event-capacity" name="event_capacity" placeholder="Max participants"
+                        required>
+                </div>
+            </div>
+
+            <!-- File Upload -->
+            <div class="form-group">
+                <label for="event-image">Event Image</label>
+                <input type="file" id="event-image" name="event_image" accept="image/*">
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-group">
+                <button type="submit" class="btn-primary">Create Event</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.event-form').on('submit', function (e) {
+                e.preventDefault(); // Prevent default form submission
+
+                // Create a FormData object for file upload handling
+                let formData = new FormData(this);
+
+                $.ajax({
+                    url: '/events/create/', // Backend API endpoint
+                    type: 'POST',
+                    data: formData,
+                    processData: false, // Prevent jQuery from automatically processing data
+                    contentType: false, // Set to false for file uploads
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}' // Include CSRF token for Django
+                    },
+                    success: function (response) {
+                        alert('Event created successfully!');
+                        // Redirect or clear the form
+                        $('.event-form')[0].reset();
+                    },
+                    error: function (xhr, status, error) {
+                        alert(`Error: ${xhr.responseJSON.error || 'Failed to create the event'}`);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
