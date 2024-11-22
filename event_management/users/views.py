@@ -68,10 +68,12 @@ def login_view(request):
             # Check if the password is valid and the role matches
             if user.check_password(password):
                 if user.role == role:
-                    login(request, user)  # Log the user in
+                    login(request,user)
+                    # request.session['user_id'] = user.id
+                    # request.session['role'] = user.role
                     return JsonResponse({
                         "message": "Login successful!",
-                        "redirect_url": f"{role}"  
+                        "redirect_url": f"/{role}"  
                     })
                 else:
                     return JsonResponse({
