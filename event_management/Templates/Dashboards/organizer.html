@@ -1,1 +1,112 @@
 {% extends "Dashboards/base.html" %}
+
+{% block title %}Orgainzer | Dashboard{% endblock title %}
+
+{% block header %}Welcome {{user.first_name}}!!{% endblock header %}
+
+{% block extra_style %}
+    <style>
+        .event-card {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-card h5 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .event-card p {
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .metrics {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .event-card {
+                margin: 10px 0;
+            }
+        }
+    </style>
+{% endblock extra_style %}
+
+{% block content %}
+        <h2>Dashboard Overview</h2>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card p-3">
+                    <h5>Total Events</h5>
+                    {% if events_count %}
+                    <p class="metrics">{{events_count}}</p>
+                    {% else %}
+                    <p class="metrics">-</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3">
+                    <h5>Active Participants</h5>
+                    {% if actv_participants %}
+                    <p class="metrics">{{actv_participants}}</p>
+                    {% else %}
+                    <p class="metrics">-</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3">
+                    <h5>Upcoming Events</h5>
+                    {% if active_events_count %}
+                    <p class="metrics">{{active_events_count}}</p>
+                    {% else %}
+                    <p class="metrics">-</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- New Section for Events -->
+        <h3 class="mt-5">Your Events</h3>
+        <div class="row mt-3" id="events-container">
+            {% for event in events %}
+                <div class="col-md-3 mb-4">
+                    <div class="event-card card p-3" data-event-id="{{ event.id }}" onclick="getEventDetails('{{ event.id }}')">
+                        <h5>{{ event.name }}</h5>
+                        <p><strong>Date:</strong> {{ event.date }}</p>
+                        <p><strong>Time:</strong> {{ event.time }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+{% endblock content %}
+
+{% block extra_js %}
+    <script>
+        function getEventDetails(eventId) {
+            $.ajax({
+                url: "/event/" + eventId,  // Change this URL to your actual API endpoint
+                method: "GET",
+                success: function(response) {
+                    console.log(response);
+                    alert('Event Details: ' + JSON.stringify(response));
+                },
+                error: function(xhr, status, error) {
+                    alert("Failed to fetch event details.");
+                }
+            });
+        }
+    </script>
+{% endblock extra_js %}

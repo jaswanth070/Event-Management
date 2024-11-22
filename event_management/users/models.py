@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User,AbstractUser
+from events.models import Event
 
 class UserProfile(AbstractUser):
     ROLES_CHOICE = [
@@ -17,21 +18,18 @@ class UserProfile(AbstractUser):
     class Meta:
         verbose_name = "UserProfile"
 
-class Event(models.Model):
-    id = models.CharField(max_length=10,primary_key=True,null=False,unique=True)
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True,null=True)
-    date = models.DateField()
-    time = models.TimeField()
+
 
 class Organizer(models.Model):
     user = models.OneToOneField(UserProfile,on_delete=models.CASCADE,related_name="Organizer_Profile")
     events_managed = models.PositiveIntegerField(default=0)
+    # def __str__(self):
+    #     return f"{self.user.username}"
 
 class Participant(models.Model):
     user = models.OneToOneField(UserProfile,on_delete=models.CASCADE,related_name="Participant_Profile")
-    registered_events = models.ManyToManyField('Event',blank=True)
+    registered_events = models.ManyToManyField("events.Event",related_name='participants_in_event',blank=True)
 
 class Volunteer(models.Model):
     user = models.OneToOneField(UserProfile,on_delete=models.CASCADE,related_name="Volunteer_Profile")
-    assigned_events = models.ManyToManyField(Event,blank=True)
+    assigned_events = models.ManyToManyField("events.Event",blank=True)
