@@ -16,8 +16,6 @@ class Event(models.Model):
         ("Gaming", "Gaming"),
         ("Entertainment", "Entertainment"),
     ]
-
-    id = models.CharField(max_length=10,primary_key=True,null=False,unique=True)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True,null=True)
     date = models.DateField()

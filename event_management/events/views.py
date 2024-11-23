@@ -63,7 +63,6 @@ def create_event(request):
             image = request.FILES.get('event_image')  # Get uploaded image
 
             event = Event.objects.create(
-                id=event_data.get("event_id", None),
                 name=event_data["event_name"],
                 description=event_data["event_description"],
                 date=event_data["event_date"],
