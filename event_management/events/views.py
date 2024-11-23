@@ -57,14 +57,11 @@ class EventDetailsView(View):
 def create_event(request):
     if request.method == "POST":
         try:
-            # Extract organizer from request user
             organizer = Organizer.objects.get(user=request.user)
 
-            # Parse form data
             event_data = request.POST
             image = request.FILES.get('event_image')  # Get uploaded image
 
-            # Create event
             event = Event.objects.create(
                 id=event_data.get("event_id", None),
                 name=event_data["event_name"],

@@ -62,15 +62,12 @@ def login_view(request):
         role = request.POST.get('role')
 
         try:
-            # Fetch the user from the UserProfile model
+            
             user = UserProfile.objects.get(username=username)
 
-            # Check if the password is valid and the role matches
             if user.check_password(password):
                 if user.role == role:
                     login(request,user)
-                    # request.session['user_id'] = user.id
-                    # request.session['role'] = user.role
                     return JsonResponse({
                         "message": "Login successful!",
                         "redirect_url": f"/{role}"  
