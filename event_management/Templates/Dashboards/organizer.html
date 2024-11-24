@@ -2,109 +2,401 @@
 
 {% block title %}Event Organizer Dashboard{% endblock title %}
 
-<!-- {% block header %}Welcome {{user.first_name}}!!{% endblock header %} -->
-
 {% block extra_style %}
 
 {% endblock extra_style %}
 
-{% block sidebar %}
+{% block header %}
+<div class="mr-10">
+    <!-- <button
+        class="block flex items-center text-sm font-medium text-gray-600 py-2 px-4 shadow  rounded-full bg-indigo-700 text-indigo-100">
+        <span class="mx-1"><a href="{% url 'create_event' %}">Create new</a></span>
+        <i class="fas fa-solid fa-plus"></i>
+    </button> -->
+    <a href="{% url 'create_event' %}">
+        <button type="submit"
+            class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg shadow-lg focus:outline-none focus:ring-4 focus:ring-green-400">
+            <i class="fas fa-plus-circle mr-2"></i>Create Event
+        </button>
+    </a>
+</div>
+{% endblock header %}
 
+
+{% block sidebar %}
+<!-- button-->
+<li class="mb-2">
+    <button class="p-2 px-4 rounded hover:bg-green-200 shadow-md">
+        <a href="/organizer">
+            <i class="fas fa-list text-gray-700">
+                <span class="sr-only">Event List</span>
+            </i>
+        </a>
+    </button>
+</li>
+<!-- button-->
+<li class="mb-2">
+    <button class="p-2 px-4 rounded hover:bg-green-100 hover:shadow-md">
+        <i class="fas fa-user text-gray-700">
+            <span class="sr-only">User List</span>
+        </i>
+    </button>
+</li>
+<!-- button-->
+<li class="mb-2">
+    <button class="p-2 px-4 rounded hover:bg-green-100 hover:shadow-md">
+        <a href="/organizer/myevents/">
+            <i class="fas fa-calendar text-gray-700">
+                <span class="sr-only">My Events</span>
+            </i>
+        </a>
+    </button>
+</li>
 {% endblock sidebar %}
 
+
 {% block content %}
-<h2>Dashboard Overview</h2>
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card p-3">
-            <h5>Total Events</h5>
-            {% if events_count %}
-            <p class="metrics">{{events_count}}</p>
-            {% else %}
-            <p class="metrics">-</p>
-            {% endif %}
-        </div>
+
+
+<!-- Main -->
+<main class="bg-gray-100 h-full flex-1 p-4 shadow-inner mx-auto overflow-y-auto">
+    <!-- Success Alert -->
+    <div id="success-alert"
+        class="hidden bg-green-500 text-white px-4 py-3 rounded relative max-w-4xl mx-auto mt-4 shadow-lg" role="alert">
+        <!-- <strong class="font-bold">Success:</strong> -->
+        <span id="success-message" class="block sm:inline">Your operation was completed successfully.</span>
+        <button type="button" id="close-success" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+            <svg class="fill-current h-6 w-6 text-white" role="button" xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20">
+                <title>Close</title>
+                <path
+                    d="M14.348 14.849a1 1 0 01-1.414 0L10 11.414l-2.935 2.935a1 1 0 01-1.414-1.414l2.935-2.935L5.65 7.514a1 1 0 011.414-1.414L10 8.586l2.935-2.935a1 1 0 111.414 1.414L11.414 10l2.935 2.935a1 1 0 010 1.414z" />
+            </svg>
+        </button>
     </div>
-    <div class="col-md-4">
-        <div class="card p-3">
-            <h5>Active Participants</h5>
-            {% if actv_participants %}
-            <p class="metrics">{{actv_participants}}</p>
-            {% else %}
-            <p class="metrics">-</p>
-            {% endif %}
-        </div>
+
+    <!-- Failure Alert -->
+    <div id="error-alert"
+        class="hidden bg-red-500 text-white px-4 py-3 rounded relative max-w-4xl mx-auto mt-4 shadow-lg" role="alert">
+        <!-- <strong class="font-bold">Error:</strong> -->
+        <span id="error-message" class="block sm:inline">Something went wrong! Please try again.</span>
+        <button type="button" id="close-error" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+            <svg class="fill-current h-6 w-6 text-white" role="button" xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20">
+                <title>Close</title>
+                <path
+                    d="M14.348 14.849a1 1 0 01-1.414 0L10 11.414l-2.935 2.935a1 1 0 01-1.414-1.414l2.935-2.935L5.65 7.514a1 1 0 011.414-1.414L10 8.586l2.935-2.935a1 1 0 111.414 1.414L11.414 10l2.935 2.935a1 1 0 010 1.414z" />
+            </svg>
+        </button>
     </div>
-    <div class="col-md-4">
-        <div class="card p-3">
-            <h5>Upcoming Events</h5>
-            {% if active_events_count %}
-            <p class="metrics">{{active_events_count}}</p>
-            {% else %}
-            <p class="metrics">-</p>
-            {% endif %}
-        </div>
-    </div>
-</div>
-<!-- New Section for Events -->
-<h3 class="mt-5">Your Events</h3>
-<div class="row mt-3" id="events-container">
-    {% for event in events %}
-    <div class="col-md-3 mb-4">
-        <div class="event-card card p-3" data-event-id="{{ event.id }}" onclick="getEventDetails('{{ event.id }}')">
-            <h5>{{ event.name }}</h5>
-            <p><strong>Date:</strong> {{ event.date }}</p>
-            <p><strong>Time:</strong> {{ event.time }}</p>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-<div class="modal fade" id="eventDetailsModal" tabindex="-1" aria-labelledby="eventDetailsLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="eventDetailsLabel">Event Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+
+
+    <div class="w-full max-w-6xl mx-auto">
+
+        <section id="events">
+
+            {% block subcontent %}
+            <div class="w-full my-6 / flex  items-center">
+                <h1 class="text-xl font-semibold flex-auto text-black">Overview</h1>
+                <div class="flex flex-col align-right items-end  md:p-0">
+                    <a class="text-xs inline-block py-1 px-4 border-2 rounded-full border-gray-400 text-black / md:text-sm self-end hover:bg-white hover:text-gray-900"
+                        href="/organizer/myevents/">All Events <span class="text-gray-600">→</span></a>
+                </div>
             </div>
-            <div class="modal-body" id="event-details-content">
+            <section class="statistics mt-4">
+                <div class="flex justify-between space-x-4">
+                    <div class="w-full sm:w-1/3 mb-4">
+                        <div class="flex items-center rounded-lg p-4 bg-white shadow-md">
+                            <i
+                                class="fas fa-solid fa-calendar-day text-3xl text-center bg-blue-500 text-white rounded-full p-3"></i>
+                            <div class="ml-4">
+                                <div class="flex items-center">
+                                    <h3 class="text-3xl font-semibold">{{events_count | default:0}}</h3>
+                                    <span class="ml-4 text-2xl">Events</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full sm:w-1/3 mb-4">
+                        <div class="flex items-center rounded-lg p-4 bg-white shadow-md">
+                            <i
+                                class="fas fa-solid fa-user text-3xl text-center bg-red-500 text-white rounded-full p-3"></i>
+                            <div class="ml-4">
+                                <div class="flex items-center">
+                                    <h3 class="text-3xl font-semibold">{{actv_participants | default:0}}</h3>
+                                    <span class="ml-4 text-2xl">Participants</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full sm:w-1/3 mb-4">
+                        <div class="flex items-center rounded-lg p-4 bg-white shadow-md">
+                            <i
+                                class="fas fa-solid fa-calendar-check text-3xl text-center bg-green-500 text-white rounded-full p-3"></i>
+                            <div class="ml-4">
+                                <div class="flex items-center">
+                                    <h3 class="text-3xl font-semibold">{{active_events_count | default:0}}</h3>
+                                    <span class="ml-4 text-2xl">Upcoming</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="md:flex mt-4 ">
+                <section class="h-full md:w-1/2 md:mr-4 rounded-lg">
+                    <h2 class="my-6 text-gray-500 text-xs tracking-wider font-bold uppercase ">Tickets Sold</h2>
+                    <section class="bg-white w-full rounded-lg p-4 / sm:p-8">
+                        <div class="flex flex-wrap">
+                            <div class="w-1/3">
+                                <div class="relative">
+                                    <div class="absolute flex h-full items-center justify-center text-center w-full">
+                                        <span class="text-base text-gray-900">43</span>
+                                        <span class="pl-1 text-sm text-gray-600">/80</span>
+                                    </div>
+                                    <svg viewBox="0 0 36 36" class="circular-chart red">
+                                        <path class="circle-bg" d="M18 2.0845
+                                             a 15.9155 15.9155 0 0 1 0 31.831
+                                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" stroke-dasharray="53, 100" d="M18 2.0845
+                                             a 15.9155 15.9155 0 0 1 0 31.831
+                                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+
+                                    </svg>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-gray-900">VIP</span>
+                                    <span class="text-gray-600">Seat</span>
+                                </div>
+                            </div>
+                            <!-- -->
+                            <div class="w-1/3">
+                                <div class="relative">
+                                    <div class="absolute flex h-full items-center justify-center text-center w-full">
+                                        <span class="text-base text-gray-900">59</span>
+                                        <span class="pl-1 text-sm text-gray-600">/73</span>
+                                    </div>
+                                    <svg viewBox="0 0 36 36" class="circular-chart orange">
+                                        <path class="circle-bg" d="M18 2.0845
+                                             a 15.9155 15.9155 0 0 1 0 31.831
+                                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" stroke-dasharray="80, 100" d="M18 2.0845
+                                             a 15.9155 15.9155 0 0 1 0 31.831
+                                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+
+                                    </svg>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-gray-900">Standard</span>
+                                    <span class="text-gray-600">Seat</span>
+                                </div>
+                            </div>
+                            <!-- -->
+                            <div class="w-1/3">
+                                <div class="relative">
+                                    <div class="absolute flex h-full items-center justify-center text-center w-full">
+                                        <span class="text-base text-gray-900">70</span>
+                                        <span class="pl-1 text-sm text-gray-600">/112</span>
+                                    </div>
+                                    <svg viewBox="0 0 36 36" class="circular-chart indigo">
+                                        <path class="circle-bg" d="M18 2.0845
+                                             a 15.9155 15.9155 0 0 1 0 31.831
+                                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" stroke-dasharray="62.5, 100" d="M18 2.0845
+                                             a 15.9155 15.9155 0 0 1 0 31.831
+                                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+
+                                    </svg>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-gray-900">Economy</span>
+                                    <span class="text-gray-600">Seat</span>
+                                </div>
+                            </div>
+                            <!-- -->
+                            <!-- -->
+                            <div class="w-1/3">
+                                <div class="relative">
+                                    <div class="absolute flex h-full items-center justify-center text-center w-full">
+                                        <span class="text-base text-gray-900">70</span>
+                                        <span class="pl-1 text-sm text-gray-600">/112</span>
+                                    </div>
+                                    <svg viewBox="0 0 36 36" class="circular-chart indigo">
+                                        <path class="circle-bg" d="M18 2.0845
+                                             a 15.9155 15.9155 0 0 1 0 31.831
+                                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" stroke-dasharray="62.5, 100" d="M18 2.0845
+                                             a 15.9155 15.9155 0 0 1 0 31.831
+                                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+
+                                    </svg>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-gray-900">Economy</span>
+                                    <span class="text-gray-600">Seat</span>
+                                </div>
+                            </div>
+                            <!-- -->
+                            <div class="w-1/3">
+                                <div class="relative">
+                                    <div class="absolute flex h-full items-center justify-center text-center w-full">
+                                        <span class="text-base text-gray-900">70</span>
+                                        <span class="pl-1 text-sm text-gray-600">/112</span>
+                                    </div>
+                                    <svg viewBox="0 0 36 36" class="circular-chart indigo">
+                                        <path class="circle-bg" d="M18 2.0845
+                                             a 15.9155 15.9155 0 0 1 0 31.831
+                                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" stroke-dasharray="62.5, 100" d="M18 2.0845
+                                             a 15.9155 15.9155 0 0 1 0 31.831
+                                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+
+                                    </svg>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-gray-900">Economy</span>
+                                    <span class="text-gray-600">Seat</span>
+                                </div>
+                            </div>
+                            <!-- -->
+                            <div class="w-1/3">
+                                <div class="relative">
+                                    <div class="absolute flex h-full items-center justify-center text-center w-full">
+                                        <span class="text-base text-gray-900">70</span>
+                                        <span class="pl-1 text-sm text-gray-600">/112</span>
+                                    </div>
+                                    <svg viewBox="0 0 36 36" class="circular-chart indigo">
+                                        <path class="circle-bg" d="M18 2.0845
+                                             a 15.9155 15.9155 0 0 1 0 31.831
+                                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" stroke-dasharray="62.5, 100" d="M18 2.0845
+                                             a 15.9155 15.9155 0 0 1 0 31.831
+                                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+
+                                    </svg>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-gray-900">Economy</span>
+                                    <span class="text-gray-600">Seat</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </section>
+                <section class="h-full md:w-1/2 rounded-lg">
+                    <h2 class="my-6 text-gray-500 text-xs tracking-wider font-bold uppercase">Venue Statistics
+                    </h2>
+                    <section class="bg-white w-full rounded-lg p-4 / sm:p-8">
+                        <div class="flex pb-4">
+                            <span class="text-gray-500 flex-1">Section</span>
+                            <span class="text-gray-500 flex-1">Booking</span>
+                        </div>
+
+                        <ul class="w-full">
+                            <!-- area-->
+                            <li class="flex flex-auto flex-row w-full items-center mb-4">
+                                <div class="text-gray-500 pr-4">A</div>
+                                <div class="flex-1">
+                                    <span>30 </span><span class="text-gray-500">/ 48</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="w-full">
+                                        <!-- progress -->
+                                        <div class="h-1 flex w-full bg-gray-300 rounded">
+                                            <div class="flex bg-red-500 rounded" style="width: 62.5%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <!-- area-->
+                            <li class="flex flex-auto flex-row w-full items-center mb-4">
+                                <div class="text-gray-500 pr-4">B</div>
+                                <div class="flex-1">
+                                    <span>13 </span><span class="text-gray-500">/ 32</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="w-full">
+                                        <!-- progress -->
+                                        <div class="h-1 flex w-full bg-gray-300 rounded">
+                                            <div class="flex bg-red-500 rounded" style="width: 40.6%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <!-- area-->
+                            <li class="flex flex-auto flex-row w-full items-center mb-4">
+                                <div class="text-gray-500 pr-4">C</div>
+                                <div class="flex-1">
+                                    <span>14 </span><span class="text-gray-500">/ 28</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="w-full">
+                                        <!-- progress -->
+                                        <div class="h-1 flex w-full bg-gray-300 rounded">
+                                            <div class="flex bg-orange-500 rounded" style="width: 50%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <!-- area-->
+                            <li class="flex flex-auto flex-row w-full items-center mb-4">
+                                <div class="text-gray-500 pr-4">D</div>
+                                <div class="flex-1">
+                                    <span>45 </span><span class="text-gray-500">/ 45</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="w-full">
+                                        <!-- progress -->
+                                        <div class="h-1 flex w-full bg-gray-300 rounded">
+                                            <div class="flex bg-orange-500 rounded" style="width: 100%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <!-- area-->
+                            <li class="flex flex-auto flex-row w-full items-center mb-4">
+                                <div class="text-gray-500 pr-4">E</div>
+                                <div class="flex-1">
+                                    <span>56 </span><span class="text-gray-500">/ 94</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="w-full">
+                                        <!-- progress -->
+                                        <div class="h-1 flex w-full bg-gray-300 rounded">
+                                            <div class="flex bg-indigo-500 rounded" style="width: 60%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <!-- area-->
+                            <li class="flex flex-auto flex-row w-full items-center">
+                                <div class="text-gray-500 pr-4">F</div>
+                                <div class="flex-1">
+                                    <span>14 </span><span class="text-gray-500">/ 18</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="w-full">
+                                        <!-- progress -->
+                                        <div class="h-1 flex w-full bg-gray-300 rounded">
+                                            <div class="flex bg-indigo-500 rounded" style="width: 77%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+
+                    </section>
+                </section>
+
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
+            {% endblock subcontent %}
+        </section>
     </div>
-</div>
+</main>
 {% endblock content %}
 
 {% block extra_js %}
-<script>
-    function getEventDetails(eventId) {
-        $.ajax({
-            url: "organizer/event/" + eventId,
-            method: "GET",
-            success: function (response) {
-                let details = `
-                    <p><strong>Name:</strong> ${response.name}</p>
-                    <p><strong>Description:</strong> ${response.description}</p>
-                    <p><strong>Date:</strong> ${response.date}</p>
-                    <p><strong>Time:</strong> ${response.time}</p>
-                    <p><strong>Location:</strong> ${response.location || 'Not specified'}</p>
-                    <p><strong>Category:</strong> ${response.category || 'Not specified'}</p>
-                    <p><strong>Fee:</strong> ${response.fee ? `₹${response.fee}` : 'Free'}</p>
-                    <p><strong>Capacity:</strong> ${response.capacity || 'Not specified'}</p>
-                    <p><strong>Completed:</strong> ${response.is_completed ? 'Yes' : 'No'}</p>
-                    <p><strong>Accepting Registrations:</strong> ${response.accept_registrations ? 'Yes' : 'No'}</p>
-                    <p><strong>Participants Count:</strong> ${response.participants_count}</p>
-                    ${response.image_url ? `<p><strong>Event Image:</strong><br><img src="${response.image_url}" alt="Event Image" style="max-width: 100%; height: auto;" /></p>` : ''}
-                `;
 
-                $('#event-details-content').html(details);
-                $('#eventDetailsModal').modal('show');
-            },
-            error: function (xhr, status, error) {
-                alert("Failed to fetch event details.");
-            }
-        });
-    }
-</script>
 {% endblock extra_js %}

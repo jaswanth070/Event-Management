@@ -1,38 +1,66 @@
-{% extends "Dashboards/organizer.html" %}
+{% extends 'Dashboards/organizer.html' %}
 
-{% block title %}Organizer | Dashboard{% endblock title %}
+{% block subcontent %}
 
-{% block header %}Welcome {{ user.first_name }}!!{% endblock header %}
-
-
-
-{% block content %}
-
-<div id="message-box" class="alert mt-3" style="display: none;" role="alert"></div>
-
-<h2>Create New Event</h2>
-<form id="create-event-form" >
+<form id="create-event-form" enctype="multipart/form-data" class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8 space-y-8">
     {% csrf_token %}
-    <div class="form-group">
-        <label for="name">Event Name</label>
-        <input type="text" id="name" name="event_name" class="form-control" required>
+    
+    <!-- Form Header -->
+    <h2 class="text-2xl font-bold text-gray-800 text-center">
+        <i class="fas fa-calendar-plus mr-2 text-green-600"></i>Create Event
+    </h2>
+
+    <!-- Event Name -->
+    <div>
+        <label for="name" class="block text-gray-700 font-medium mb-2">
+            <i class="fas fa-pen mr-2 text-green-600"></i>Event Name
+        </label>
+        <input type="text" id="name" name="event_name" placeholder="Enter event name" 
+            class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+            required maxlength="100">
     </div>
-    <div class="form-group mt-3">
-        <label for="description">Description</label>
-        <textarea id="description" name="event_description" class="form-control" rows="3"></textarea>
+
+    <!-- Description -->
+    <div>
+        <label for="description" class="block text-gray-700 font-medium mb-2">
+            <i class="fas fa-align-left mr-2 text-green-600"></i>Description
+        </label>
+        <textarea id="description" name="event_description" placeholder="Enter event description" 
+            class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+            rows="4" maxlength="500"></textarea>
     </div>
-    <div class="form-group mt-3">
-        <label for="date">Date</label>
-        <input type="date" id="date" name="event_date" class="form-control" required>
+
+    <!-- Date and Time -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Date -->
+        <div>
+            <label for="date" class="block text-gray-700 font-medium mb-2">
+                <i class="fas fa-calendar-day mr-2 text-green-600"></i>Date
+            </label>
+            <input type="date" id="date" name="event_date" 
+                class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+                min="{{ today|date:'Y-m-d' }}" required>
+        </div>
+        <!-- Time -->
+        <div>
+            <label for="time" class="block text-gray-700 font-medium mb-2">
+                <i class="fas fa-clock mr-2 text-green-600"></i>Time
+            </label>
+            <input type="time" id="time" name="event_time" 
+                class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+                step="1800" required>
+        </div>
     </div>
-    <div class="form-group mt-3">
-        <label for="time">Time</label>
-        <input type="time" id="time" name="event_time" class="form-control" required>
-    </div>
-    <div class="form-group mt-3">
-        <label for="location">Location</label>
-        <select id="location" name="event_location" class="form-control">
-            <option value="" selected disabled>Choose Location</option>
+
+    <!-- Location -->
+    <div>
+        <label for="location" class="block text-gray-700 font-medium mb-2">
+            <i class="fas fa-map-marker-alt mr-2 text-green-600"></i>Location
+        </label>
+        <select id="location" name="event_location" 
+            class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+            required>
+            <option value="" selected disabled>Select Location</option>
             <option value="Location1">Location1</option>
             <option value="Location2">Location2</option>
             <option value="Location3">Location3</option>
@@ -40,70 +68,118 @@
             <option value="Location5">Location5</option>
         </select>
     </div>
-    <div class="form-group mt-3">
-        <label for="category">Category</label>
-        <select id="category" name="event_category" class="form-control" required>
-            <option value="" selected disabled>Choose Category</option>
-            <option value="Workshop">WorkShop</option>
+
+    <!-- Category -->
+    <div>
+        <label for="category" class="block text-gray-700 font-medium mb-2">
+            <i class="fas fa-tags mr-2 text-green-600"></i>Category
+        </label>
+        <select id="category" name="event_category" 
+            class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+            required>
+            <option value="" selected disabled>Select Category</option>
+            <option value="Workshop">Workshop</option>
             <option value="Competition">Competition</option>
             <option value="Tech Talk">Tech Talk</option>
             <option value="Gaming">Gaming</option>
             <option value="Entertainment">Entertainment</option>
         </select>
     </div>
-    <div class="form-group mt-3">
-        <label for="fee">Fee</label>
-        <input type="number" id="fee" name="event_fee" class="form-control" min="0" value="0">
+
+    <!-- Fee and Capacity -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Fee -->
+        <div>
+            <label for="fee" class="block text-gray-700 font-medium mb-2">
+                <i class="fas fa-dollar-sign mr-2 text-green-600"></i>Fee
+            </label>
+            <input type="number" id="fee" name="event_fee" 
+                class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+                min="0" value="0" required>
+        </div>
+        <!-- Capacity -->
+        <div>
+            <label for="capacity" class="block text-gray-700 font-medium mb-2">
+                <i class="fas fa-users mr-2 text-green-600"></i>Capacity
+            </label>
+            <input type="number" id="capacity" name="event_capacity" 
+                class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+                min="0" value="0" required>
+        </div>
     </div>
-    <div class="form-group mt-3">
-        <label for="capacity">Capacity</label>
-        <input type="number" id="capacity" name="event_capacity" class="form-control" min="0" required>
-    </div>
-    <div class="form-group mt-3">
-        <label for="accept_registrations">Accept Registrations</label>
-        <select id="accept_registrations" name="event_accept_registrations" class="form-control">
+
+    <!-- Accept Registrations -->
+    <div>
+        <label for="accept_registrations" class="block text-gray-700 font-medium mb-2">
+            <i class="fas fa-check-circle mr-2 text-green-600"></i>Accept Registrations
+        </label>
+        <select id="accept_registrations" name="event_accept_registrations" 
+            class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700">
             <option value="True">Yes</option>
             <option value="False">No</option>
         </select>
     </div>
-    <div class="form-group">
-        <label for="image">Event Image</label>
-        <input type="file" id="image" name="event_image" class="form-control">
+
+    <!-- Event Image -->
+    <div>
+        <label for="image" class="block text-gray-700 font-medium mb-2">
+            <i class="fas fa-image mr-2 text-green-600"></i>Event Image
+        </label>
+        <input type="file" id="image" name="event_image" 
+            class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+            accept="image/jpeg, image/png, image/gif" onchange="validateImageSize(this)">
+        <div class="mt-2 flex justify-center">
+            <img src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png" 
+                alt="Placeholder" class="w-32 h-32 object-cover rounded shadow-lg">
+        </div>
     </div>
-    <div class="form-group mt-4">
-        <button type="submit" class="btn btn-primary" style="background-color: #007467 ;">Create Event</button>
+
+    <!-- Submit Button -->
+    <div class="text-center">
+        <button type="submit" 
+            class="bg-green-600 hover:bg-green-700 text-white font-bold mt-5 px-6 py-3 rounded-lg shadow-lg focus:outline-none focus:ring-4 focus:ring-green-400">
+            <i class="fas fa-plus-circle mr-2"></i>Create Event
+        </button>
     </div>
 </form>
-{% endblock content %}
+
+
+{% endblock subcontent %}
+
 
 {% block extra_js %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
-        $("#create-event-form").submit(function(e){
+        $("#modalTitle").css("color","#007467");
+        $("#modalActionButton").css("background-color","#5cb85c");
+        
+        $("#create-event-form").submit(function (e) {
+            showLoader();
             e.preventDefault();
-            var formData = $("#create-event-form").serialize();
+            var formData = new FormData(this);
             $.ajax({
                 url: "/organizer/events/create/",
                 type: "POST",
                 data: formData,
                 dataType: "json",
-                success: function(response){
-                        $("#message-box")
-                                .removeClass("alert-danger")
-                                .addClass("alert-success")
-                                .text(response.message)
-                                .show();
+                contentType:false,
+                processData:false,
+                success: function (response) {
+                    showSuccess(response.message);
+                    hideLoader();
+                    
+                    showModal("Event Created!!","Please click continue",function(){
+                        
+                        window.location = "/organizer/myevents";
+                    })
                 },
-                error: function(xhr,status,error){
-                    $("#message-box")
-                        .removeClass("alert-success")
-                        .addClass("alert-danger")
-                        .text("Failed to submit the form. Please try again.")
-                        .show();
+                error: function (xhr, status, error) {
+                    showError("Failed to submit the form. Please try again.");
+                    hideLoader();
                 }
             });
         });
     });
 </script>
+
 {% endblock extra_js %}
