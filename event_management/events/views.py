@@ -60,10 +60,12 @@ def create_event(request):
 def editEvent(request,event_id):
     if request.user.role != "organizer":
         return JsonResponse({"error": "Forbidden"}, status=403)
-    if event.organizer.id != request.user.id:
-        return JsonResponse({"error": "Forbidden"}, status=403)
+    
     
     event = get_object_or_404(Event, id=event_id)
+
+    if event.organizer.user != request.user:
+        return JsonResponse({"error": "Forbidden"}, status=403)
 
     if request.method == "POST":
         try:
@@ -116,7 +118,7 @@ def deleteEvent(request,event_id):
     if request.method == "DELETE":
         try:
             event = get_object_or_404(Event, id=event_id)
-            if event.organizer.id != request.user.id:
+            if event.organizer.user != request.user:
                 return JsonResponse({"error": "Forbidden"}, status=403)
 
             event.delete()
