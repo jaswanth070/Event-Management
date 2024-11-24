@@ -1,0 +1,167 @@
+{% extends "Dashboards/base.html" %}
+
+{% block title %}Orgainzer | Dashboard{% endblock title %}
+
+{% block header %}Welcome {{user.first_name}}!!{% endblock header %}
+
+{% block extra_style %}
+<style>
+    .event-card {
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .event-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .event-card h5 {
+        font-size: 18px;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+
+    .event-card p {
+        font-size: 14px;
+        margin: 5px 0;
+    }
+
+    .metrics {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .event-card {
+            margin: 10px 0;
+        }
+    }
+    
+</style>
+{% endblock extra_style %}
+
+{% block sidebar %}
+<li>
+    <a href="/organizer">
+        <i class="bi bi-house-door"></i> Dashboard
+    </a>
+</li>
+<li>
+    <a href="{% url 'create_event' %}">
+        <i class="bi bi-calendar-event" ></i> Create Event
+    </a>
+</li>
+<li>
+    <a href="#">
+        <i class="bi bi-pencil-square"></i> My Events <span class="badge">{{events_count}}</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <i class="bi bi-bookmark"></i> Collections
+    </a>
+</li>
+
+{% endblock sidebar %}
+
+{% block content %}
+<h2>Dashboard Overview</h2>
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h5>Total Events</h5>
+            {% if events_count %}
+            <p class="metrics">{{events_count}}</p>
+            {% else %}
+            <p class="metrics">-</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h5>Active Participants</h5>
+            {% if actv_participants %}
+            <p class="metrics">{{actv_participants}}</p>
+            {% else %}
+            <p class="metrics">-</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h5>Upcoming Events</h5>
+            {% if active_events_count %}
+            <p class="metrics">{{active_events_count}}</p>
+            {% else %}
+            <p class="metrics">-</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<!-- New Section for Events -->
+<h3 class="mt-5">Your Events</h3>
+<div class="row mt-3" id="events-container">
+    {% for event in events %}
+    <div class="col-md-3 mb-4">
+        <div class="event-card card p-3" data-event-id="{{ event.id }}" onclick="getEventDetails('{{ event.id }}')">
+            <h5>{{ event.name }}</h5>
+            <p><strong>Date:</strong> {{ event.date }}</p>
+            <p><strong>Time:</strong> {{ event.time }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<div class="modal fade" id="eventDetailsModal" tabindex="-1" aria-labelledby="eventDetailsLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventDetailsLabel">Event Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="event-details-content">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    function getEventDetails(eventId) {
+        $.ajax({
+            url: "organizer/event/" + eventId,
+            method: "GET",
+            success: function (response) {
+                let details = `
+                    <p><strong>Name:</strong> ${response.name}</p>
+                    <p><strong>Description:</strong> ${response.description}</p>
+                    <p><strong>Date:</strong> ${response.date}</p>
+                    <p><strong>Time:</strong> ${response.time}</p>
+                    <p><strong>Location:</strong> ${response.location || 'Not specified'}</p>
+                    <p><strong>Category:</strong> ${response.category || 'Not specified'}</p>
+                    <p><strong>Fee:</strong> ${response.fee ? `₹${response.fee}` : 'Free'}</p>
+                    <p><strong>Capacity:</strong> ${response.capacity || 'Not specified'}</p>
+                    <p><strong>Completed:</strong> ${response.is_completed ? 'Yes' : 'No'}</p>
+                    <p><strong>Accepting Registrations:</strong> ${response.accept_registrations ? 'Yes' : 'No'}</p>
+                    <p><strong>Participants Count:</strong> ${response.participants_count}</p>
+                    ${response.image_url ? `<p><strong>Event Image:</strong><br><img src="${response.image_url}" alt="Event Image" style="max-width: 100%; height: auto;" /></p>` : ''}
+                `;
+
+                $('#event-details-content').html(details);
+                $('#eventDetailsModal').modal('show');
+            },
+            error: function (xhr, status, error) {
+                alert("Failed to fetch event details.");
+            }
+        });
+    }
+</script>
+{% endblock extra_js %}

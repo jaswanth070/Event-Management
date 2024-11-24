@@ -1,0 +1,215 @@
+{% extends 'Dashboards/organizer.html' %}
+
+{% block subcontent %}
+<div class="w-full max-w-6xl mx-auto">
+    <section class="bg-gray-100 flex justify-center px-4">
+        <div class="bg-white py-10 px-6 w-full max-w-4xl shadow-lg rounded-lg">
+            <form id="edit-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="flex flex-col space-y-6">
+                    <!-- Event Name -->
+                    <div class="flex flex-col">
+                        <label class="text-black text-sm font-bold mb-2" for="event_name">
+                            <i class="fas fa-calendar-alt mr-2 text-green-600"></i>Event Name*
+                        </label>
+                        <input
+                            class="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-2 focus:ring-green-500 focus:border-green-500"
+                            name="event_name" type="text" value="{{ event.name }}">
+                        <span class="text-red-500 text-xs italic">Please fill out this field.</span>
+                    </div>
+
+                    <!-- Event Description -->
+                    <div class="flex flex-col">
+                        <label class="text-black text-sm font-bold mb-2" for="description">
+                            <i class="fas fa-align-left mr-2 text-green-600"></i>Event Description*
+                        </label>
+                        <textarea
+                            class="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-2 focus:ring-green-500 focus:border-green-500"
+                            name="event_description" rows="4">{{ event.description }}</textarea>
+                    </div>
+
+                    <!-- Date and Time -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col">
+                            <label class="text-black text-sm font-bold mb-2" for="date">
+                                <i class="fas fa-calendar-day mr-2 text-green-600"></i>Event Date*
+                            </label>
+                            <input
+                                class="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 focus:ring-green-500 focus:border-green-500"
+                                name="event_date" type="date" value="{{ event.date|date:'Y-m-d' }}"
+                                min="{{ today|date:'Y-m-d' }}">
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-black text-sm font-bold mb-2" for="time">
+                                <i class="fas fa-clock mr-2 text-green-600"></i>Event Time*
+                            </label>
+                            <input
+                                class="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 focus:ring-green-500 focus:border-green-500"
+                                name="event_time" type="time" value="{{ formatted_time }}">
+                        </div>
+                    </div>
+
+                    <!-- Location -->
+                    <div class="flex flex-col">
+                        <label class="text-black text-sm font-bold mb-2" for="location">
+                            <i class="fas fa-map-marker-alt mr-2 text-green-600"></i>Location*
+                        </label>
+                        <input
+                            class="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 focus:ring-green-500 focus:border-green-500"
+                            name="event_location" type="text" value="{{ event.location }}">
+                    </div>
+
+                    <!-- Category -->
+                    <div class="flex flex-col">
+                        <label class="text-black text-sm font-bold mb-2" for="category">
+                            <i class="fas fa-list-alt mr-2 text-green-600"></i>Category*
+                        </label>
+                        <input
+                            class="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 focus:ring-green-500 focus:border-green-500"
+                            name="event_category" type="text" value="{{ event.category }}">
+                    </div>
+
+                    <!-- Fee and Capacity -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col">
+                            <label class="text-black text-sm font-bold mb-2" for="fee">
+                                <i class="fas fa-dollar-sign mr-2 text-green-600"></i>Entry Fee*
+                            </label>
+                            <input
+                                class="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 focus:ring-green-500 focus:border-green-500"
+                                name="event_fee" type="number" value="{{ event.fee }}">
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-black text-sm font-bold mb-2" for="event_capacity">
+                                <i class="fas fa-users mr-2 text-green-600"></i>Capacity*
+                            </label>
+                            <input
+                                class="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 focus:ring-green-500 focus:border-green-500"
+                                name="event_capacity" type="number" value="{{ event.capacity }}">
+                        </div>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div class="flex flex-col">
+                        <label class="text-black text-sm font-bold mb-2" for="image">
+                            <i class="fas fa-image mr-2 text-green-600"></i>Event Image
+                        </label>
+                        <input
+                            class="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 focus:ring-green-500 focus:border-green-500"
+                            id="image" type="file" name="event_image" accept="image/jpeg, image/png, image/gif"
+                            onchange="validateImageSize(this)">
+                        <div class="mt-2 flex justify-center">
+                            {% if event.image %}
+                            <img src="{{ event.image.url }}" alt="Event Image"
+                                class="w-32 h-32 object-cover rounded shadow-lg">
+                            {% else %}
+                            <img src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"
+                                alt="Placeholder Image" class="w-32 h-32 object-cover rounded shadow-lg">
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Status and Registrations -->
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 mt-6">
+                        <!-- Completed Checkbox -->
+                        <div
+                            class="flex flex-col items-start p-4 border-2 border-green-600 rounded-lg shadow-lg bg-gray-50 hover:bg-green-50 transition-all">
+                            <label class="text-lg font-bold text-green-700 cursor-pointer" for="is_completed">
+                                <i class="fas fa-check-circle mr-2"></i>Completed
+                            </label>
+                            <input type="checkbox" id="is_completed" name="event_is_completed"
+                                class="mt-2 w-6 h-6 cursor-pointer focus:ring-4 focus:ring-green-300" 
+                                {% if event.is_completed %}checked{% endif %} onclick="toggleRegistrations(this)">
+                            <span class="text-sm text-gray-500 mt-1">Mark the event as completed.</span>
+                        </div>
+
+                        <!-- Accept Registrations Checkbox -->
+                        <div
+                            class="flex flex-col items-start p-4 border-2 border-blue-600 rounded-lg shadow-lg bg-gray-50 hover:bg-blue-50 transition-all">
+                            <label class="text-lg font-bold text-blue-700 cursor-pointer" for="accept_registrations">
+                                <i class="fas fa-user-check mr-2"></i>Accept Registrations
+                            </label>
+                            <input type="checkbox" id="accept_registrations" name="event_accept_registrations"
+                                class="mt-2 w-6 h-6 cursor-pointer focus:ring-4 focus:ring-blue-300" 
+                                {% if event.accept_registrations %}checked{% endif %}>
+                            <span class="text-sm text-gray-500 mt-1">Allow participants to register for the
+                                event.</span>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-center mt-4">
+                        <button type="submit"
+                            class="bg-green-600 text-white font-bold py-2 px-8 rounded-lg shadow hover:bg-green-700 focus:ring-4 focus:ring-green-400">
+                            <i class="fas fa-save mr-2"></i>Save Changes
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+
+{% endblock subcontent %}
+
+
+{% block extra_js %}
+<script>
+
+    function validateImageSize(input) {
+        const file = input.files[0];
+        if (file) {
+            const maxSize = 10 * 1024 * 1024; // 10 MB
+            if (file.size > maxSize) {
+                alert("The selected image exceeds the 10MB limit. Please choose a smaller file.");
+                input.value = ""; // Clear the input
+            }
+        }
+    }
+
+    function toggleRegistrations(completedCheckbox) {
+        const registrationsCheckbox = document.getElementById('accept_registrations');
+        if (completedCheckbox.checked) {
+            registrationsCheckbox.checked = false;
+            registrationsCheckbox.disabled = true;
+        } else {
+            registrationsCheckbox.disabled = false;
+        }
+    }
+    $("#edit-form").submit(function (event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        showLoader();
+
+        $.ajax({
+
+            url: "/organizer/myevents/{{event.id}}",
+            method: "POST",
+            data: formData,
+            type: JSON,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.status === "success") {
+                    showSuccess("Event Details Updated Succesuffly");
+                    hideLoader();
+                    setTimeout(function(){
+                        location.reload();
+                    },1000)
+                }
+                else {
+                    showError(response.message);
+                    hideLoader();
+                }
+            },
+            error: function (response) {
+                showError(response.error);
+                hideLoader();
+            }
+        })
+    })
+
+
+</script>
+
+{% endblock extra_js %}

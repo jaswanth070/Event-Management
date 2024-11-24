@@ -1,77 +1,185 @@
-{% extends "Dashboards/base.html" %}
+{% extends 'Dashboards/organizer.html' %}
 
-{% block title %}Organizer | Dashboard{% endblock title %}
+{% block subcontent %}
 
-{% block header %}Welcome {{ user.first_name }}!!{% endblock header %}
+<form id="create-event-form" enctype="multipart/form-data" class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8 space-y-8">
+    {% csrf_token %}
+    
+    <!-- Form Header -->
+    <h2 class="text-2xl font-bold text-gray-800 text-center">
+        <i class="fas fa-calendar-plus mr-2 text-green-600"></i>Create Event
+    </h2>
 
-{% block sidebar %}
-<li>
-    <a href="{% url 'event_create' %}">
-        <i class="bi bi-calendar-event"></i> Create Event
-    </a>
-</li>
-<li>
-    <a href="#">
-        <i class="bi bi-pencil-square"></i> Edit Event <span class="badge">6</span>
-    </a>
-</li>
-<li>
-    <a href="#">
-        <i class="bi bi-bookmark"></i> Collections
-    </a>
-</li>
-{% endblock sidebar %}
+    <!-- Event Name -->
+    <div>
+        <label for="name" class="block text-gray-700 font-medium mb-2">
+            <i class="fas fa-pen mr-2 text-green-600"></i>Event Name
+        </label>
+        <input type="text" id="name" name="event_name" placeholder="Enter event name" 
+            class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+            required maxlength="100">
+    </div>
 
-{% block content %}
-<h2>Dashboard Overview</h2>
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card p-3">
-            <h5>Total Events</h5>
-            <p class="metrics">{{ events_count|default:"-" }}</p>
+    <!-- Description -->
+    <div>
+        <label for="description" class="block text-gray-700 font-medium mb-2">
+            <i class="fas fa-align-left mr-2 text-green-600"></i>Description
+        </label>
+        <textarea id="description" name="event_description" placeholder="Enter event description" 
+            class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+            rows="4" maxlength="500"></textarea>
+    </div>
+
+    <!-- Date and Time -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Date -->
+        <div>
+            <label for="date" class="block text-gray-700 font-medium mb-2">
+                <i class="fas fa-calendar-day mr-2 text-green-600"></i>Date
+            </label>
+            <input type="date" id="date" name="event_date" 
+                class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+                min="{{ today|date:'Y-m-d' }}" required>
+        </div>
+        <!-- Time -->
+        <div>
+            <label for="time" class="block text-gray-700 font-medium mb-2">
+                <i class="fas fa-clock mr-2 text-green-600"></i>Time
+            </label>
+            <input type="time" id="time" name="event_time" 
+                class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+                step="1800" required>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card p-3">
-            <h5>Active Participants</h5>
-            <p class="metrics">{{ actv_participants|default:"-" }}</p>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card p-3">
-            <h5>Upcoming Events</h5>
-            <p class="metrics">{{ active_events_count|default:"-" }}</p>
-        </div>
-    </div>
-</div>
 
-<h3 class="mt-5">Your Events</h3>
-<div class="row mt-3" id="events-container">
-    {% for event in events %}
-    <div class="col-md-3 mb-4">
-        <div class="event-card card p-3" data-event-id="{{ event.id }}" onclick="getEventDetails('{{ event.id }}')">
-            <h5>{{ event.name }}</h5>
-            <p><strong>Date:</strong> {{ event.date }}</p>
-            <p><strong>Time:</strong> {{ event.time }}</p>
+    <!-- Location -->
+    <div>
+        <label for="location" class="block text-gray-700 font-medium mb-2">
+            <i class="fas fa-map-marker-alt mr-2 text-green-600"></i>Location
+        </label>
+        <select id="location" name="event_location" 
+            class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+            required>
+            <option value="" selected disabled>Select Location</option>
+            <option value="Location1">Location1</option>
+            <option value="Location2">Location2</option>
+            <option value="Location3">Location3</option>
+            <option value="Location4">Location4</option>
+            <option value="Location5">Location5</option>
+        </select>
+    </div>
+
+    <!-- Category -->
+    <div>
+        <label for="category" class="block text-gray-700 font-medium mb-2">
+            <i class="fas fa-tags mr-2 text-green-600"></i>Category
+        </label>
+        <select id="category" name="event_category" 
+            class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+            required>
+            <option value="" selected disabled>Select Category</option>
+            <option value="Workshop">Workshop</option>
+            <option value="Competition">Competition</option>
+            <option value="Tech Talk">Tech Talk</option>
+            <option value="Gaming">Gaming</option>
+            <option value="Entertainment">Entertainment</option>
+        </select>
+    </div>
+
+    <!-- Fee and Capacity -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Fee -->
+        <div>
+            <label for="fee" class="block text-gray-700 font-medium mb-2">
+                <i class="fas fa-dollar-sign mr-2 text-green-600"></i>Fee
+            </label>
+            <input type="number" id="fee" name="event_fee" 
+                class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+                min="0" value="0" required>
+        </div>
+        <!-- Capacity -->
+        <div>
+            <label for="capacity" class="block text-gray-700 font-medium mb-2">
+                <i class="fas fa-users mr-2 text-green-600"></i>Capacity
+            </label>
+            <input type="number" id="capacity" name="event_capacity" 
+                class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+                min="0" value="0" required>
         </div>
     </div>
-    {% endfor %}
-</div>
-{% endblock content %}
+
+    <!-- Accept Registrations -->
+    <div>
+        <label for="accept_registrations" class="block text-gray-700 font-medium mb-2">
+            <i class="fas fa-check-circle mr-2 text-green-600"></i>Accept Registrations
+        </label>
+        <select id="accept_registrations" name="event_accept_registrations" 
+            class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700">
+            <option value="True">Yes</option>
+            <option value="False">No</option>
+        </select>
+    </div>
+
+    <!-- Event Image -->
+    <div>
+        <label for="image" class="block text-gray-700 font-medium mb-2">
+            <i class="fas fa-image mr-2 text-green-600"></i>Event Image
+        </label>
+        <input type="file" id="image" name="event_image" 
+            class="w-full rounded-lg shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500 px-4 py-2 text-gray-700" 
+            accept="image/jpeg, image/png, image/gif" onchange="validateImageSize(this)">
+        <div class="mt-2 flex justify-center">
+            <img src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png" 
+                alt="Placeholder" class="w-32 h-32 object-cover rounded shadow-lg">
+        </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="text-center">
+        <button type="submit" 
+            class="bg-green-600 hover:bg-green-700 text-white font-bold mt-5 px-6 py-3 rounded-lg shadow-lg focus:outline-none focus:ring-4 focus:ring-green-400">
+            <i class="fas fa-plus-circle mr-2"></i>Create Event
+        </button>
+    </div>
+</form>
+
+
+{% endblock subcontent %}
+
 
 {% block extra_js %}
 <script>
-    function getEventDetails(eventId) {
-        $.ajax({
-            url: "organizer/event/" + eventId,
-            method: "GET",
-            success: function (response) {
-                // Logic for event details modal
-            },
-            error: function (xhr, status, error) {
-                alert("Failed to fetch event details.");
-            }
+    $(document).ready(function () {
+        $("#modalTitle").css("color","#007467");
+        $("#modalActionButton").css("background-color","#5cb85c");
+        
+        $("#create-event-form").submit(function (e) {
+            showLoader();
+            e.preventDefault();
+            var formData = new FormData(this);
+            $.ajax({
+                url: "/organizer/events/create/",
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                contentType:false,
+                processData:false,
+                success: function (response) {
+                    showSuccess(response.message);
+                    hideLoader();
+                    
+                    showModal("Event Created!!","Please click continue",function(){
+                        
+                        window.location = "/organizer/myevents";
+                    })
+                },
+                error: function (xhr, status, error) {
+                    showError("Failed to submit the form. Please try again.");
+                    hideLoader();
+                }
+            });
         });
-    }
+    });
 </script>
+
 {% endblock extra_js %}
