@@ -50,7 +50,7 @@ class EventDetailsView(View):
             event.is_completed = data.get("is_completed", event.is_completed)
             event.accept_registrations = data.get("accept_registrations", event.accept_registrations)
             event.save()
-            return JsonResponse({"message": "Event updated successfully!"})
+            return JsonResponse({"success": "Event updated successfully!"})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
 
@@ -72,11 +72,12 @@ def create_event(request):
                 fee=event_data.get("event_fee", 0),
                 capacity=event_data["event_capacity"],
                 image=image,  # Save the uploaded image
-                organizer=organizer
+                organizer=organizer,
+                accept_registrations = True if event_data["event_accept_registrations"] == "True" else False
             )
-            return JsonResponse({"message": "Event created successfully!"}, status=201)
+            return JsonResponse({"status":"success","message": "Event created successfully!"}, status=201)
         except KeyError as e:
-            return JsonResponse({"error": f"Missing field: {str(e)}"}, status=400)
+            return JsonResponse({ "status": "error","message": f"Missing field: {str(e)}"}, status=400)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     return render(request,"events/event_creation.html")

@@ -1,14 +1,71 @@
 {% extends "Dashboards/base.html" %}
 
-{% block title %}Event Organizer Dashboard{% endblock title %}
+{% block title %}Orgainzer | Dashboard{% endblock title %}
 
-<!-- {% block header %}Welcome {{user.first_name}}!!{% endblock header %} -->
+{% block header %}Welcome {{user.first_name}}!!{% endblock header %}
 
 {% block extra_style %}
+<style>
+    .event-card {
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
+    .event-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .event-card h5 {
+        font-size: 18px;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+
+    .event-card p {
+        font-size: 14px;
+        margin: 5px 0;
+    }
+
+    .metrics {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .event-card {
+            margin: 10px 0;
+        }
+    }
+    
+</style>
 {% endblock extra_style %}
 
 {% block sidebar %}
+<li>
+    <a href="/organizer">
+        <i class="bi bi-house-door"></i> Dashboard
+    </a>
+</li>
+<li>
+    <a href="{% url 'create_event' %}">
+        <i class="bi bi-calendar-event" ></i> Create Event
+    </a>
+</li>
+<li>
+    <a href="#">
+        <i class="bi bi-pencil-square"></i> My Events <span class="badge">{{events_count}}</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <i class="bi bi-bookmark"></i> Collections
+    </a>
+</li>
 
 {% endblock sidebar %}
 

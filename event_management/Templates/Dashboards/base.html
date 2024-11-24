@@ -1,227 +1,553 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="overflow-y-non">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Dashboard{% endblock title %}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet">
 
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/1.1.2/tailwind.min.css'>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
+            font-family: "Source Sans Pro", sans-serif;
         }
 
-        .sidebar {
-            height: 100vh;
-            width: 250px;
+        * {
+            box-sizing: border-box;
+        }
+
+        header{
             background-color: #007467;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            padding-top: 20px;
-            color: #5A5A5A;
         }
 
-        .sidebar .logo {
-            text-align: center;
-            margin-bottom: 30px;
+        .box {
+            border: 1px dotted pink;
         }
 
-        .sidebar .logo img {
-            max-width: 120px;
+        .circular-chart {
+            display: block;
+            margin: 10px auto;
+            max-width: 80%;
+            max-height: 250px;
         }
 
-        .sidebar ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .circle-bg {
+            fill: none;
+            stroke: #eee;
+            stroke-width: 3.8;
         }
 
-        .sidebar ul li {
-            margin: 20px 0;
+        .circle {
+            fill: none;
+            stroke-width: 2.8;
+            stroke-linecap: round;
+            animation: progress 1s ease-out forwards;
         }
 
-        .sidebar ul li a {
-            text-decoration: none;
-            color: #f4e4c9;
-            /* color: #5A5A5A; */
-            display: flex;
-            align-items: center;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 8px;
-            transition: background-color 0.3s ease, color 0.3s ease;
+        .circular-chart.red .circle {
+            stroke: #f56565;
         }
 
-        .sidebar ul li a:hover {
-            background-color: #F0F0F0;
-            color: #000000;
+        .circular-chart.orange .circle {
+            stroke: #ed8936;
         }
 
-        .sidebar ul li a i {
-            font-size: 20px;
-            margin-right: 15px;
+        .circular-chart.indigo .circle {
+            stroke: #667eea;
         }
 
-        .sidebar ul li a .badge {
-            background-color: #6c63ff;
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: bold;
-            border-radius: 12px;
-            padding: 2px 8px;
-            margin-left: auto;
-        }
-
-        .sidebar ul li a:hover {
-            background-color: #005c4d;
-        }
-
-        /* Topbar styles */
-        .topbar {
-            height: 60px;
-            /* background-color: #ffffff; */
-            background-color: #007467;
-            color: #f4e4c9;
-            border-bottom: 1px solid #dee2e6;
-            padding: 0 20px;
-            margin-left: 250px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .user-info {
-            position: relative;
-        }
-
-        .user-info .dropdown {
-            display: inline-block;
-        }
-
-        .user-info .profile-img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .dropdown-menu {
-            background-color: #ffffff;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            border: none;
-            border-radius: 6px;
-            padding: 10px;
-        }
-
-        .dropdown-menu li a,
-        .dropdown-menu li span {
-            display: flex;
-            align-items: center;
-            font-size: 14px;
-            padding: 10px;
-            color: #333333;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .dropdown-menu li a:hover {
-            background-color: #f8f8f8;
-            border-radius: 4px;
-        }
-
-        .dropdown-menu li a i,
-        .dropdown-menu li span i {
-            font-size: 16px;
-            margin-right: 10px;
-        }
-
-        /* Content area styles */
-        .main-content {
-            margin-left: 250px;
-            margin-top: 60px;
-            padding: 20px;
-        }
-
-        .card {
-            border: none;
-            background-color: #ccffef;
-            color: #333;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .metrics{
-            font-size: 24px;
-            color: #007367;
+        .percentage {
+            fill: #666;
+            font-family: sans-serif;
+            font-size: 0.25em;
+            text-anchor: middle;
         }
     </style>
 
-    {% block extra_style %}{% endblock extra_style %}
 </head>
 
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="logo">
-            <img src="https://www.gitam.edu/themes/gitam/assets/images/gitam-logo.svg" alt="Gitam Logo">
-        </div>
-        <ul class="nav-links">
-            <li>
-                <a href="#">
-                    <i class="bi bi-house-door"></i> Dashboard
-                </a>
-            </li>
-            {% block sidebar %}{% endblock sidebar %}
-            <li>
-                <a href="logout">
-                    <i class="bi bi-box-arrow-left"></i> Logout
-                </a>
-            </li>
-        </ul>
-    </div>
 
-    <!-- Topbar -->
-    <div class="topbar">
-        <h5>{% block header %}Welcome to the Dashboard{% endblock header %}</h5>
-        <div class="user-info">
-            <div class="dropdown">
-                <img src="https://via.placeholder.com/40" alt="User Profile Picture" class="profile-img"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <span class="dropdown-item">
-                            <i class="bi bi-person"></i> {{user.first_name}} {{user.last_name}}
-                        </span>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i class="bi bi-lock"></i> Change Password
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i class="bi bi-box-arrow-right"></i> Logout
-                        </a>
-                    </li>
-                </ul>
+    <div id="app" class="md:flex md:flex-wrap antialiased h-screen overflow-y-none">
+        <header class=" w-full p-4 z-10 shadow flex flex-wrap items-center content-between">
+            <!-- App Icon-->
+            <img src="https://www.gitam.edu/themes/gitam/assets/images/gitam-logo.svg" class="w-20 mr-12 h-auto" alt="Gitam Logo">
+            <!-- search -->
+            <div class="flex-grow">
+                <div class="relative w-64">
+                    <span class="absolute pr-3 inset-y-0 right-0 flex items-center">
+                        <svg class="h-6 w-6 text-gray-600" viewBox="0 0 24 24" fill="none">
+                            <path stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </span>
+                    <input
+                        class="block w-full rounded-full  bg-gray-200 pr-10 pl-4 py-2 text-gray-900 text-sm placeholder-gray-600"
+                        placeholder="Search for something">
+
+                </div>
+
             </div>
-        </div>
-    </div>
+            <!-- new action -->
+            <div class="mr-10">
+                <button
+                    class="block flex items-center text-sm font-medium text-gray-600 py-2 px-4 shadow  rounded-full bg-indigo-700 text-indigo-100">
+                    <span class="mx-1"><a href="{% url 'create_event' %}">Create new</a></span>
+                    <i class="bi bi-plus-circle h-5 w-5"></i>
+                </button>
+            </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        {% block content %}
-        {% endblock content %}
-    </div>
+            <!-- Logged in avatar -->
+            <img class="rounded-full h-12 w-12" src="https://randomuser.me/api/portraits/men/17.jpg" alt="">
+        </header>
+        <!-- Sidebar Menu -->
+        <aside class="w-full lg:w-24 p-2 px-4">
+            <ul class="h-full flex lg:flex-col items-center justify-center">
+                <!-- button-->
+                <li class="mb-2">
+                    <button class="p-2 px-4 rounded hover:bg-green-200 shadow-md">
+                        <i class="fas fa-list text-gray-700">
+                            <span class="sr-only">Event List</span>
+                        </i>
+                    </button>
+                </li>
+                <!-- button-->
+                <li class="mb-2">
+                    <button class="p-2 px-4 rounded hover:bg-green-100 hover:shadow-md">
+                        <i class="fas fa-user text-gray-700">
+                            <span class="sr-only">User List</span>
+                        </i>
+                    </button>
+                </li>
+                <!-- button-->
+                <li class="mb-2">
+                    <button class="p-2 px-4 rounded hover:bg-green-100 hover:shadow-md">
+                        <i class="fas fa-calendar text-gray-700">
+                            <span class="sr-only">Event List</span>
+                        </i>
+                    </button>
+                </li>
+                <!-- button-->
+                <li class="mb-2">
+                    <button class="p-2 px-4 rounded hover:bg-green-100 hover:shadow-md">
+                        <i class="fas fa-trophy text-gray-700">
+                            <span class="sr-only">Event List</span>
+                        </i>
+                    </button>
+                </li>
+            </ul>
+        </aside>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    {% block extra_js %}{% endblock extra_js %}
+        <!-- Main -->
+        <main class="bg-gray-100 h-full flex-1 p-4 shadow-inner mx-auto overflow-y-auto">
+            <div class="w-full max-w-4xl mx-auto">
+                <section id="events">
+                    <!-- INfo -->
+                    <div class="w-full my-6 / flex  items-center">
+                        <h1 class="text-xl font-semibold flex-auto text-black">Upcoming Event</h1>
+                        <div class="flex flex-col align-right items-end  md:p-0">
+                            <a class="text-xs inline-block py-1 px-4 border-2 rounded-full border-gray-400 text-black / md:text-sm self-end hover:bg-white hover:text-gray-900"
+                                href="">All Events <span class="text-gray-600">→</span></a>
+                        </div>
+                    </div>
+
+                    <section
+                        class="p-4 pt-0 sm:p-8 sm:pt-0 rounded-lg bg-indigo-600 md:flex md:flex-wrap items-center shadow-lg">
+                        <!-- Event Title -->
+                        <div class="pt-4 / md:flex / lg:pt-8  / xl:w-8/12">
+                            <div class="lg:flex lg:items-center">
+                                <div class="border-white pr-4 mr-4 text-white / lg:border-r xl:flex xl:flex-col">
+                                    <span class="text-xs xl:text-base">APR</span>
+                                    <span class="text-xs xl:text-3xl leading-none">21</span>
+                                </div>
+                                <h2 class="text-2xl text-white font-semibold / lg:font-normal md:text-3xl">Ultimate
+                                    Championship 2019</h2>
+                            </div>
+                        </div>
+                        <!-- Secondary information -->
+                        <div class="w-full flex pt-4 / lg:pt-8 / xl:w-4/12">
+                            <div class="flex-1">
+                                <div class="text-gray-300 text-xs md:text-sm">Games</div>
+                                <div class="text-lg md:text-xl text-white font-semibold">CS:Go</div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-gray-300 text-xs md:text-sm">Entry Fee</div>
+                                <div class="text-xl md:text-2xl text-white font-semibold">$34</div>
+                            </div>
+                        </div>
+                        <!-- Info box -->
+                        <div
+                            class="w-full pt-4 flex flex-wrap items-center content-around / sm:pt-8 / md:content-between md:flex-auto  md:flex-wrap / xl:w-8/12">
+                            <div class="w-1/2 md:flex-1">
+                                <div class="text-gray-300 text-xs md:text-sm">Selling starts</div>
+                                <div class="text-lg md:text-xl text-teal-300 font-semibold">Started</div>
+                            </div>
+                            <div class="w-1/2 md:flex-1">
+                                <div class="text-gray-300 text-sm md:text-sm">Selling Ends
+                                </div>
+                                <div class="text-lg md:text-xl text-white font-semibold">In 5 days</div>
+                            </div>
+                            <div class="w-1/2 md:flex-1">
+                                <div class="text-gray-300 text-sm md:text-sm">Players
+                                </div>
+                                <div class="text-lg md:text-xl text-white font-semibold">12</div>
+                            </div>
+                            <div class="w-1/2 md:flex-1">
+                                <div class="text-gray-300 text-sm md:text-sm">Teams
+                                </div>
+                                <div class="text-lg md:text-xl text-white font-semibold">2</div>
+                            </div>
+                            <div class="w-1/2 md:flex-1">
+                                <div class="text-gray-300 text-sm md:text-sm">Tickets Left
+                                </div>
+                                <div class="text-lg md:text-xl text-white font-semibold">112</div>
+                            </div>
+                            <div>
+                            </div>
+                        </div>
+                        <!-- Actions -->
+                        <div
+                            class="mt-4 pt-6 / md:mt-12 md:flex md:flex-col md:align-right md:items-end xl:w-4/12 md:p-0">
+                            <a class="inline-block py-1 px-6  border rounded-full border-gray-300 text-gray-200 md:self-end hover:bg-white hover:text-gray-900"
+                                href="">Edit Event</a>
+                        </div>
+                    </section>
+
+                    <div class="md:flex mt-4 ">
+                        <section class="h-full md:w-1/2 md:mr-4 rounded-lg">
+                            <h2 class="my-6 text-gray-500 text-xs tracking-wider font-bold uppercase ">Tickets Sold</h2>
+                            <section class="bg-white w-full rounded-lg p-4 / sm:p-8">
+                                <div class="flex flex-wrap">
+                                    <div class="w-1/3">
+                                        <div class="relative">
+                                            <div
+                                                class="absolute flex h-full items-center justify-center text-center w-full">
+                                                <span class="text-base text-gray-900">43</span>
+                                                <span class="pl-1 text-sm text-gray-600">/80</span>
+                                            </div>
+                                            <svg viewBox="0 0 36 36" class="circular-chart red">
+                                                <path class="circle-bg" d="M18 2.0845
+													 a 15.9155 15.9155 0 0 1 0 31.831
+													 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                                <path class="circle" stroke-dasharray="53, 100" d="M18 2.0845
+													 a 15.9155 15.9155 0 0 1 0 31.831
+													 a 15.9155 15.9155 0 0 1 0 -31.831" />
+
+                                            </svg>
+                                        </div>
+                                        <div class="text-center">
+                                            <span class="text-gray-900">VIP</span>
+                                            <span class="text-gray-600">Seat</span>
+                                        </div>
+                                    </div>
+                                    <!-- -->
+                                    <div class="w-1/3">
+                                        <div class="relative">
+                                            <div
+                                                class="absolute flex h-full items-center justify-center text-center w-full">
+                                                <span class="text-base text-gray-900">59</span>
+                                                <span class="pl-1 text-sm text-gray-600">/73</span>
+                                            </div>
+                                            <svg viewBox="0 0 36 36" class="circular-chart orange">
+                                                <path class="circle-bg" d="M18 2.0845
+													 a 15.9155 15.9155 0 0 1 0 31.831
+													 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                                <path class="circle" stroke-dasharray="80, 100" d="M18 2.0845
+													 a 15.9155 15.9155 0 0 1 0 31.831
+													 a 15.9155 15.9155 0 0 1 0 -31.831" />
+
+                                            </svg>
+                                        </div>
+                                        <div class="text-center">
+                                            <span class="text-gray-900">Standard</span>
+                                            <span class="text-gray-600">Seat</span>
+                                        </div>
+                                    </div>
+                                    <!-- -->
+                                    <div class="w-1/3">
+                                        <div class="relative">
+                                            <div
+                                                class="absolute flex h-full items-center justify-center text-center w-full">
+                                                <span class="text-base text-gray-900">70</span>
+                                                <span class="pl-1 text-sm text-gray-600">/112</span>
+                                            </div>
+                                            <svg viewBox="0 0 36 36" class="circular-chart indigo">
+                                                <path class="circle-bg" d="M18 2.0845
+													 a 15.9155 15.9155 0 0 1 0 31.831
+													 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                                <path class="circle" stroke-dasharray="62.5, 100" d="M18 2.0845
+													 a 15.9155 15.9155 0 0 1 0 31.831
+													 a 15.9155 15.9155 0 0 1 0 -31.831" />
+
+                                            </svg>
+                                        </div>
+                                        <div class="text-center">
+                                            <span class="text-gray-900">Economy</span>
+                                            <span class="text-gray-600">Seat</span>
+                                        </div>
+                                    </div>
+                                    <!-- -->
+                                    <!-- -->
+                                    <div class="w-1/3">
+                                        <div class="relative">
+                                            <div
+                                                class="absolute flex h-full items-center justify-center text-center w-full">
+                                                <span class="text-base text-gray-900">70</span>
+                                                <span class="pl-1 text-sm text-gray-600">/112</span>
+                                            </div>
+                                            <svg viewBox="0 0 36 36" class="circular-chart indigo">
+                                                <path class="circle-bg" d="M18 2.0845
+													 a 15.9155 15.9155 0 0 1 0 31.831
+													 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                                <path class="circle" stroke-dasharray="62.5, 100" d="M18 2.0845
+													 a 15.9155 15.9155 0 0 1 0 31.831
+													 a 15.9155 15.9155 0 0 1 0 -31.831" />
+
+                                            </svg>
+                                        </div>
+                                        <div class="text-center">
+                                            <span class="text-gray-900">Economy</span>
+                                            <span class="text-gray-600">Seat</span>
+                                        </div>
+                                    </div>
+                                    <!-- -->
+                                    <div class="w-1/3">
+                                        <div class="relative">
+                                            <div
+                                                class="absolute flex h-full items-center justify-center text-center w-full">
+                                                <span class="text-base text-gray-900">70</span>
+                                                <span class="pl-1 text-sm text-gray-600">/112</span>
+                                            </div>
+                                            <svg viewBox="0 0 36 36" class="circular-chart indigo">
+                                                <path class="circle-bg" d="M18 2.0845
+													 a 15.9155 15.9155 0 0 1 0 31.831
+													 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                                <path class="circle" stroke-dasharray="62.5, 100" d="M18 2.0845
+													 a 15.9155 15.9155 0 0 1 0 31.831
+													 a 15.9155 15.9155 0 0 1 0 -31.831" />
+
+                                            </svg>
+                                        </div>
+                                        <div class="text-center">
+                                            <span class="text-gray-900">Economy</span>
+                                            <span class="text-gray-600">Seat</span>
+                                        </div>
+                                    </div>
+                                    <!-- -->
+                                    <div class="w-1/3">
+                                        <div class="relative">
+                                            <div
+                                                class="absolute flex h-full items-center justify-center text-center w-full">
+                                                <span class="text-base text-gray-900">70</span>
+                                                <span class="pl-1 text-sm text-gray-600">/112</span>
+                                            </div>
+                                            <svg viewBox="0 0 36 36" class="circular-chart indigo">
+                                                <path class="circle-bg" d="M18 2.0845
+													 a 15.9155 15.9155 0 0 1 0 31.831
+													 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                                <path class="circle" stroke-dasharray="62.5, 100" d="M18 2.0845
+													 a 15.9155 15.9155 0 0 1 0 31.831
+													 a 15.9155 15.9155 0 0 1 0 -31.831" />
+
+                                            </svg>
+                                        </div>
+                                        <div class="text-center">
+                                            <span class="text-gray-900">Economy</span>
+                                            <span class="text-gray-600">Seat</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </section>
+                        <section class="h-full md:w-1/2 rounded-lg">
+                            <h2 class="my-6 text-gray-500 text-xs tracking-wider font-bold uppercase">Venue Statistics
+                            </h2>
+                            <section class="bg-white w-full rounded-lg p-4 / sm:p-8">
+                                <div class="flex pb-4">
+                                    <span class="text-gray-500 flex-1">Section</span>
+                                    <span class="text-gray-500 flex-1">Booking</span>
+                                </div>
+
+                                <ul class="w-full">
+                                    <!-- area-->
+                                    <li class="flex flex-auto flex-row w-full items-center mb-4">
+                                        <div class="text-gray-500 pr-4">A</div>
+                                        <div class="flex-1">
+                                            <span>30 </span><span class="text-gray-500">/ 48</span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="w-full">
+                                                <!-- progress -->
+                                                <div class="h-1 flex w-full bg-gray-300 rounded">
+                                                    <div class="flex bg-red-500 rounded" style="width: 62.5%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <!-- area-->
+                                    <li class="flex flex-auto flex-row w-full items-center mb-4">
+                                        <div class="text-gray-500 pr-4">B</div>
+                                        <div class="flex-1">
+                                            <span>13 </span><span class="text-gray-500">/ 32</span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="w-full">
+                                                <!-- progress -->
+                                                <div class="h-1 flex w-full bg-gray-300 rounded">
+                                                    <div class="flex bg-red-500 rounded" style="width: 40.6%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <!-- area-->
+                                    <li class="flex flex-auto flex-row w-full items-center mb-4">
+                                        <div class="text-gray-500 pr-4">C</div>
+                                        <div class="flex-1">
+                                            <span>14 </span><span class="text-gray-500">/ 28</span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="w-full">
+                                                <!-- progress -->
+                                                <div class="h-1 flex w-full bg-gray-300 rounded">
+                                                    <div class="flex bg-orange-500 rounded" style="width: 50%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <!-- area-->
+                                    <li class="flex flex-auto flex-row w-full items-center mb-4">
+                                        <div class="text-gray-500 pr-4">D</div>
+                                        <div class="flex-1">
+                                            <span>45 </span><span class="text-gray-500">/ 45</span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="w-full">
+                                                <!-- progress -->
+                                                <div class="h-1 flex w-full bg-gray-300 rounded">
+                                                    <div class="flex bg-orange-500 rounded" style="width: 100%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <!-- area-->
+                                    <li class="flex flex-auto flex-row w-full items-center mb-4">
+                                        <div class="text-gray-500 pr-4">E</div>
+                                        <div class="flex-1">
+                                            <span>56 </span><span class="text-gray-500">/ 94</span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="w-full">
+                                                <!-- progress -->
+                                                <div class="h-1 flex w-full bg-gray-300 rounded">
+                                                    <div class="flex bg-indigo-500 rounded" style="width: 60%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <!-- area-->
+                                    <li class="flex flex-auto flex-row w-full items-center">
+                                        <div class="text-gray-500 pr-4">F</div>
+                                        <div class="flex-1">
+                                            <span>14 </span><span class="text-gray-500">/ 18</span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="w-full">
+                                                <!-- progress -->
+                                                <div class="h-1 flex w-full bg-gray-300 rounded">
+                                                    <div class="flex bg-indigo-500 rounded" style="width: 77%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+
+                            </section>
+                        </section>
+
+                    </div>
+                </section>
+
+                <section id="users">
+                    <h1>USERS</h1>
+
+
+                </section>
+            </div>
+        </main>
+        <aside v-if="notificationShade === 'true'" id="performance"
+            class=" w-full w-12 lg:w-64 p-4 px-8 overflow-y-auto">
+            <section id="recent">
+                <h2 class="my-6 text-gray-500 text-xs tracking-wider font-bold uppercase">Recent Activity</h2>
+                <article class="flex flex-row  items-start flex-wrap mb-8">
+                    <img class="h-12 rounded-full w-12" src="https://randomuser.me/api/portraits/men/97.jpg" alt="">
+                    <div class="flex-1 pl-4 text-gray-700 text-sm leading-snug">
+                        <span class="font-semibold inline text-gray-800">Tom Ross</span> has bought <span
+                            class="font-semibold text-orange-600">3 standard</span> tickets on your event
+                        <span class="text-xs pt-4 block w-full">3 mins ago</span>
+                    </div>
+
+                </article>
+
+                <article class="flex flex-row  items-start flex-wrap mb-8">
+                    <img class="h-12 rounded-full w-12" src="https://randomuser.me/api/portraits/women/47.jpg" alt="">
+                    <div class="flex-1 pl-4 text-gray-700 text-sm leading-snug">
+                        <span class="font-semibold inline text-gray-800">Valentina Black</span> has bought <span
+                            class="font-semibold text-red-600">1 VIP</span> ticket on your event
+                        <span class="text-xs pt-4 block w-full">29 mins ago</span>
+                    </div>
+
+                </article>
+
+                <article class="flex flex-row  items-start flex-wrap mb-8">
+                    <img class="h-12 rounded-full w-12" src="https://randomuser.me/api/portraits/men/99.jpg" alt="">
+                    <div class="flex-1 pl-4 text-gray-700 text-sm leading-snug">
+                        <span class="font-semibold inline text-gray-800">Roger Smith</span> has bought <span
+                            class="font-semibold text-indigo-600">5 Economy</span> tickets on your event
+                        <span class="text-xs pt-4 block w-full">11 hours ago</span>
+                    </div>
+
+                </article>
+
+                <article class="flex flex-row  items-start flex-wrap mb-8">
+                    <img class="h-12 rounded-full w-12" src="https://randomuser.me/api/portraits/women/14.jpg" alt="">
+                    <div class="flex-1 pl-4 text-gray-700 text-sm leading-snug">
+                        <span class="font-semibold inline text-gray-800">Julia Donaldson</span> has bought <span
+                            class="font-semibold text-orange-600">1 Standard</span> ticket on your event
+                        <span class="text-xs pt-4 block w-full">2 days ago</span>
+                    </div>
+
+                </article>
+            </section>
+
+            <section id="recent">
+                <h2 class="my-6 text-gray-500 text-xs tracking-wider font-bold uppercase">Ticket Sales</h2>
+
+            </section>
+        </aside>
+
+    </div>
+    <!-- partial -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js'></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    info: null,
+                    notificationShade: 'true'
+                }
+            },
+            methods: {
+                toogle() {
+                    this.spanVisible = !this.notificationShade
+                }
+            }
+        })
+    </script>
+
 </body>
 
 </html>

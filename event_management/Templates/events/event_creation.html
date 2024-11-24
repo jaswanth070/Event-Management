@@ -1,77 +1,109 @@
-{% extends "Dashboards/base.html" %}
+{% extends "Dashboards/organizer.html" %}
 
 {% block title %}Organizer | Dashboard{% endblock title %}
 
 {% block header %}Welcome {{ user.first_name }}!!{% endblock header %}
 
-{% block sidebar %}
-<li>
-    <a href="{% url 'event_create' %}">
-        <i class="bi bi-calendar-event"></i> Create Event
-    </a>
-</li>
-<li>
-    <a href="#">
-        <i class="bi bi-pencil-square"></i> Edit Event <span class="badge">6</span>
-    </a>
-</li>
-<li>
-    <a href="#">
-        <i class="bi bi-bookmark"></i> Collections
-    </a>
-</li>
-{% endblock sidebar %}
+
 
 {% block content %}
-<h2>Dashboard Overview</h2>
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card p-3">
-            <h5>Total Events</h5>
-            <p class="metrics">{{ events_count|default:"-" }}</p>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card p-3">
-            <h5>Active Participants</h5>
-            <p class="metrics">{{ actv_participants|default:"-" }}</p>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card p-3">
-            <h5>Upcoming Events</h5>
-            <p class="metrics">{{ active_events_count|default:"-" }}</p>
-        </div>
-    </div>
-</div>
 
-<h3 class="mt-5">Your Events</h3>
-<div class="row mt-3" id="events-container">
-    {% for event in events %}
-    <div class="col-md-3 mb-4">
-        <div class="event-card card p-3" data-event-id="{{ event.id }}" onclick="getEventDetails('{{ event.id }}')">
-            <h5>{{ event.name }}</h5>
-            <p><strong>Date:</strong> {{ event.date }}</p>
-            <p><strong>Time:</strong> {{ event.time }}</p>
-        </div>
+<div id="message-box" class="alert mt-3" style="display: none;" role="alert"></div>
+
+<h2>Create New Event</h2>
+<form id="create-event-form" >
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="name">Event Name</label>
+        <input type="text" id="name" name="event_name" class="form-control" required>
     </div>
-    {% endfor %}
-</div>
+    <div class="form-group mt-3">
+        <label for="description">Description</label>
+        <textarea id="description" name="event_description" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="form-group mt-3">
+        <label for="date">Date</label>
+        <input type="date" id="date" name="event_date" class="form-control" required>
+    </div>
+    <div class="form-group mt-3">
+        <label for="time">Time</label>
+        <input type="time" id="time" name="event_time" class="form-control" required>
+    </div>
+    <div class="form-group mt-3">
+        <label for="location">Location</label>
+        <select id="location" name="event_location" class="form-control">
+            <option value="" selected disabled>Choose Location</option>
+            <option value="Location1">Location1</option>
+            <option value="Location2">Location2</option>
+            <option value="Location3">Location3</option>
+            <option value="Location4">Location4</option>
+            <option value="Location5">Location5</option>
+        </select>
+    </div>
+    <div class="form-group mt-3">
+        <label for="category">Category</label>
+        <select id="category" name="event_category" class="form-control" required>
+            <option value="" selected disabled>Choose Category</option>
+            <option value="Workshop">WorkShop</option>
+            <option value="Competition">Competition</option>
+            <option value="Tech Talk">Tech Talk</option>
+            <option value="Gaming">Gaming</option>
+            <option value="Entertainment">Entertainment</option>
+        </select>
+    </div>
+    <div class="form-group mt-3">
+        <label for="fee">Fee</label>
+        <input type="number" id="fee" name="event_fee" class="form-control" min="0" value="0">
+    </div>
+    <div class="form-group mt-3">
+        <label for="capacity">Capacity</label>
+        <input type="number" id="capacity" name="event_capacity" class="form-control" min="0" required>
+    </div>
+    <div class="form-group mt-3">
+        <label for="accept_registrations">Accept Registrations</label>
+        <select id="accept_registrations" name="event_accept_registrations" class="form-control">
+            <option value="True">Yes</option>
+            <option value="False">No</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="image">Event Image</label>
+        <input type="file" id="image" name="event_image" class="form-control">
+    </div>
+    <div class="form-group mt-4">
+        <button type="submit" class="btn btn-primary" style="background-color: #007467 ;">Create Event</button>
+    </div>
+</form>
 {% endblock content %}
 
 {% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    function getEventDetails(eventId) {
-        $.ajax({
-            url: "organizer/event/" + eventId,
-            method: "GET",
-            success: function (response) {
-                // Logic for event details modal
-            },
-            error: function (xhr, status, error) {
-                alert("Failed to fetch event details.");
-            }
+    $(document).ready(function () {
+        $("#create-event-form").submit(function(e){
+            e.preventDefault();
+            var formData = $("#create-event-form").serialize();
+            $.ajax({
+                url: "/organizer/events/create/",
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                success: function(response){
+                        $("#message-box")
+                                .removeClass("alert-danger")
+                                .addClass("alert-success")
+                                .text(response.message)
+                                .show();
+                },
+                error: function(xhr,status,error){
+                    $("#message-box")
+                        .removeClass("alert-success")
+                        .addClass("alert-danger")
+                        .text("Failed to submit the form. Please try again.")
+                        .show();
+                }
+            });
         });
-    }
+    });
 </script>
 {% endblock extra_js %}
